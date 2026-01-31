@@ -1,0 +1,83 @@
+name: Scheduled Cron Jobs
+
+on:
+  schedule:
+    # Run check-saved-searches daily at 8:00 AM UTC
+    - cron: '0 8 * * *'
+    # Run subscription-reminders daily at 9:00 AM UTC
+    - cron: '0 9 * * *'
+    # Run check-grace-periods every 6 hours
+    - cron: '0 */6 * * *'
+    # Run cleanup-payments every 2 hours
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      function:
+        description: 'Function to run manually'
+        required: true
+        type: choice
+        options:
+          - check-saved-searches
+          - subscription-reminders
+          - check-grace-periods
+          - cleanup-payments
+          - all
+
+jobs:
+  run-cron-jobs:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run check-saved-searches (Scheduled - Daily 8AM UTC)
+        if: github.event.schedule == '0 8 * * *' || github.event.inputs.function == 'check-saved-searches' || github.event.inputs.function == 'all'
+        run: |
+          echo "Running check-saved-searches..."
+          curl -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/check-saved-searches" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            --fail-with-body
+          echo "check-saved-searches completed"
+
+      - name: Run subscription-reminders (Scheduled - Daily 9AM UTC)
+        if: github.event.schedule == '0 9 * * *' || github.event.inputs.function == 'subscription-reminders' || github.event.inputs.function == 'all'
+        run: |
+          echo "Running subscription-reminders..."
+          curl -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/subscription-reminders" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            --fail-with-body
+          echo "subscription-reminders completed"
+
+      - name: Run check-grace-periods (Scheduled - Every 6 hours)
+        if: github.event.schedule == '0 */6 * * *' || github.event.inputs.function == 'check-grace-periods' || github.event.inputs.function == 'all'
+        run: |
+          echo "Running check-grace-periods..."
+          curl -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/check-grace-periods" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            --fail-with-body
+          echo "check-grace-periods completed"
+
+      - name: Run cleanup-payments (Scheduled - Every 2 hours)
+        if: github.event.schedule == '0 */2 * * *' || github.event.inputs.function == 'cleanup-payments' || github.event.inputs.function == 'all'
+        run: |
+          echo "Running cleanup-payments..."
+          curl -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/cleanup-payments" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            --fail-with-body
+          echo "cleanup-payments completed"
+
+      - name: Log completion
+        run: |
+          echo "Cron job execution completed at $(date -u)"
