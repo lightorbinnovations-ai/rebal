@@ -9,11 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { 
-  Home, 
-  Building2, 
-  Landmark, 
-  ArrowRight, 
+import {
+  Home,
+  Building2,
+  Landmark,
+  ArrowRight,
   ArrowLeft,
   Check,
   Sparkles,
@@ -95,14 +95,14 @@ export const SubscriptionWizard = ({ isOpen, onClose, onSelectPlan, userId }: Su
       }
     }
 
-  setRecommendedPlan(plan);
+    setRecommendedPlan(plan);
     setStep(4); // Show recommendation
   };
 
   const handleComplete = (selectedPlan?: string) => {
     // Mark wizard as completed for this user
     localStorage.setItem(getWizardCompletedKey(userId), "true");
-    
+
     if (selectedPlan && onSelectPlan) {
       onSelectPlan(selectedPlan);
     }
@@ -299,15 +299,15 @@ export const SubscriptionWizard = ({ isOpen, onClose, onSelectPlan, userId }: Su
             </div>
 
             <div className="flex flex-col gap-3">
-              <Button 
+              <Button
                 className="w-full shine-effect"
                 onClick={() => handleComplete(recommendedPlan)}
               >
                 <Sparkles className="mr-2 h-4 w-4" />
                 Continue with {getPlanDetails(recommendedPlan).name}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={() => handleComplete()}
               >
@@ -391,24 +391,29 @@ const OptionCard = ({ icon: Icon, title, description, selected, onClick }: Optio
 );
 
 // Hook to manage wizard visibility
-export const useSubscriptionWizard = (userId: string | undefined) => {
+export const useSubscriptionWizard = (userId: string | undefined, company: any | null) => {
   const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !company) return;
 
     // Check if wizard was completed for this user
     const wizardCompleted = localStorage.getItem(getWizardCompletedKey(userId));
-    
-    // Show wizard for users who haven't completed it
+
+    // Check if user is already on a paid plan
+    // If subscription_status is 'active' or 'trialing', they are paid/trialing - don't show wizard
+    // We only show for free users (null, cancelled, expired, past_due)
+    const isPaidPlan = company.subscription_status === 'active' || company.subscription_status === 'trialing';
+
+    // Show wizard for users who haven't completed it AND are not on a paid plan
     // Delay slightly so it doesn't compete with onboarding modal
-    if (!wizardCompleted) {
+    if (!wizardCompleted && !isPaidPlan) {
       const timer = setTimeout(() => {
         setShowWizard(true);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [userId]);
+  }, [userId, company]);
 
   const closeWizard = () => {
     localStorage.setItem(getWizardCompletedKey(userId), "true");

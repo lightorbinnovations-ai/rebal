@@ -13,6 +13,7 @@ import type { User } from "@supabase/supabase-js";
 import type { Company } from "@/types/company";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { toast } from "sonner";
+import { NotificationPermissionModal } from "./NotificationPermissionModal";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -44,21 +45,39 @@ export const DashboardLayout = ({
 
   const { permission, isSupported, requestPermission, subscribeToNotifications } = usePushNotifications();
 
-  // Request notification permission on mount if supported and not yet granted/denied
+  // Notification permission modal state
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+
+  // Check if we should ask for notification permission
   useEffect(() => {
+    // Only ask if supported, default permission (not yet asked), and user hasn't dismissed it this session
     if (isSupported && permission === "default") {
-      const timer = setTimeout(() => {
-        requestPermission().then((granted) => {
-          if (granted) {
-            toast.success("Notifications enabled", {
-              description: "You will now receive alerts for new inquiries and updates.",
-            });
-          }
-        });
-      }, 5000); // Delay slightly longer than admin to let dashboard load
-      return () => clearTimeout(timer);
+      // Check session storage to avoid pestering the user on every reload if they clicked "Not Now"
+      const hasDismissed = sessionStorage.getItem("notification_prompt_dismissed");
+
+      if (!hasDismissed) {
+        const timer = setTimeout(() => {
+          setShowNotificationModal(true);
+        }, 5000); // 5 second delay
+        return () => clearTimeout(timer);
+      }
     }
-  }, [isSupported, permission, requestPermission]);
+  }, [isSupported, permission]);
+
+  const handleAllowNotifications = async () => {
+    setShowNotificationModal(false);
+    const granted = await requestPermission();
+    if (granted) {
+      toast.success("Notifications enabled", {
+        description: "You will now receive alerts for new inquiries and updates.",
+      });
+    }
+  };
+
+  const handleDismissNotifications = () => {
+    setShowNotificationModal(false);
+    sessionStorage.setItem("notification_prompt_dismissed", "true");
+  };
 
   // Subscribe to user notifications
   useEffect(() => {
@@ -138,6 +157,13 @@ export const DashboardLayout = ({
           setShowCommandPalette(false);
           setTimeout(() => setShowShortcutsDialog(true), 150);
         }}
+      />
+
+      {/* Notification Permission Modal */}
+      <NotificationPermissionModal
+        isOpen={showNotificationModal}
+        onClose={handleDismissNotifications}
+        onAllow={handleAllowNotifications}
       />
     </SidebarProvider>
   );

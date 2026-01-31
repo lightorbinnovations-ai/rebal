@@ -34,10 +34,10 @@ export const CopyShortLinkButton = ({
   const handleCopy = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
-    
+
     try {
       setIsGenerating(true);
-      
+
       let shortLink = existingLink;
       if (!shortLink) {
         shortLink = await getOrCreatePropertyLink(propertyId, fullPath);
@@ -45,8 +45,9 @@ export const CopyShortLinkButton = ({
 
       // Build the short URL using the edge function endpoint for proper OG image support
       // This ensures social media crawlers see the correct metadata
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const shortUrl = `${supabaseUrl}/functions/v1/short-link-redirect?code=${shortLink.short_code}`;
+      // Build the short URL using the branded link style
+      // This is now proxied to the edge function for OG support
+      const shortUrl = `${import.meta.env.VITE_APP_URL || "https://rebal.site"}/r/${shortLink.short_code}`;
 
       await navigator.clipboard.writeText(shortUrl);
       setCopied(true);

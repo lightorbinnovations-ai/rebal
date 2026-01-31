@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
   }
 
   const requestUrl = new URL(req.url);
-  const path = requestUrl.searchParams.get("path") || "";
+  let path = requestUrl.searchParams.get("path") || "";
   const userAgent = req.headers.get("user-agent") || "";
 
   const getEnv = (key: string, required = true): string => {
@@ -244,7 +244,39 @@ Deno.serve(async (req) => {
   const defaultOgImage = `${baseUrl}/og-image.png`;
 
   // Target URL for redirect
-  const targetUrl = path.startsWith("/") ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+  let targetUrl = path.startsWith("/") ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+
+  // Handle Short Links /r/:code - Resolve before processing
+  // This allows us to show the correct OG image for the destination property/company
+  if (path.startsWith("/r/") || path.startsWith("r/")) {
+    const parts = path.split("/").filter(Boolean); // ["r", "CODE"]
+    if (parts.length >= 2 && parts[0] === "r") {
+      const shortCode = parts[1];
+      console.log("Resolving short link:", shortCode);
+
+      try {
+        // Use increment_short_link_click to resolve AND count the click
+        const { data, error } = await supabase.rpc("increment_short_link_click", {
+          p_short_code: shortCode,
+        });
+
+        if (!error && data && data.length > 0) {
+          const fullPath = data[0].full_path; // e.g. "/properties/slug"
+          console.log("Resolved short link to:", fullPath);
+
+          if (fullPath) {
+            // Update path and targetUrl to point to the resolved destination
+            path = fullPath.startsWith("/") ? fullPath : `/${fullPath}`;
+            targetUrl = `${baseUrl}${path}`;
+          }
+        } else {
+          console.log("Short link not found or error:", error);
+        }
+      } catch (e) {
+        console.error("Error resolving short link:", e);
+      }
+    }
+  }
 
   // Check rate limit (skip for known crawlers to ensure SEO works)
   if (!isCrawler(userAgent)) {

@@ -30,10 +30,14 @@ export function getDisplayUrl(path: string, customDomain?: string | null): strin
  * This is the BEST option - clean URL that works with social previews
  */
 export function getShortLinkUrl(shortCode: string, customDomain?: string | null): string {
-  // Use the edge function via query param so crawlers get proper OG
-  // Note: Short links might still point to the main domain unless we handle custom domain short links
-  // For now, we'll keep short links on the main domain as they are easier to manage
-  return `${SUPABASE_URL}/functions/v1/short-link-redirect?code=${shortCode}`;
+  // Use the branded /r/ link which is now proxied by Netlify to the edge function
+  // This gives us both:
+  // 1. Clean URL (rebal.site/r/code)
+  // 2. Proper OG tags (via proxy to edge function)
+  if (customDomain) {
+    return `https://${customDomain}/r/${shortCode}`;
+  }
+  return `${BASE_URL}/r/${shortCode}`;
 }
 
 /**
@@ -54,29 +58,9 @@ export function getDisplayShortLinkUrl(shortCode: string, customDomain?: string 
  * Used when no short link exists
  */
 export function getSocialPreviewUrl(path: string, customDomain?: string | null): string {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-
-  // If custom domain is used, we still point to the Supabase edge function for OG generation
-  // BUT we pass the custom domain info to the edge function if needed,
-  // or simply point to the edge function which reconstructs the final URL.
-  // Actually, the edge function needs to redirect to the correct place.
-  // The 'public-og-image' function takes title, desc etc.
-  // The 'social-preview' function redirects to the app.
-
-  // For now, let's keep using the edge function on the supabase domain for the PREVIEW definition,
-  // but it should redirect to the custom domain if known.
-  // A simple way is to just use the direct link if it's a custom domain, 
-  // because the custom domain (SPA) might not have SSR for OG tags without the edge function proxy.
-  // Since we don't have SSR, we MUST use the edge function proxy for Facebook/WhatsApp to see OG tags.
-
-  // Checking `get_social_preview_url` implementation: it constructs a URL to /functions/v1/social-preview.
-  // Ideally we want the social preview to redirect to `https://latest.com/...` instead of `rebal.site/...`
-
-  const targetUrl = customDomain
-    ? `https://${customDomain}${normalizedPath}`
-    : `${BASE_URL}${normalizedPath}`;
-
-  return `${SUPABASE_URL}/functions/v1/social-preview?path=${encodeURIComponent(normalizedPath)}&target=${encodeURIComponent(targetUrl)}`;
+  // Return the branded display URL (e.g. rebal.site/...) to ensure white-labeling.
+  // We avoid exposing the Supabase function URL directly.
+  return getDisplayUrl(path, customDomain);
 }
 
 /**

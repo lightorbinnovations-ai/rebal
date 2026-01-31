@@ -383,7 +383,7 @@ export const InquiriesList = ({ company }: InquiriesListProps) => {
 
       {/* Inquiry Detail Modal */}
       <Dialog open={!!selectedInquiry} onOpenChange={() => setSelectedInquiry(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -479,9 +479,8 @@ export const InquiriesList = ({ company }: InquiriesListProps) => {
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button className="flex-1" asChild>
                   <a
-                    href={`mailto:${selectedInquiry.email}?subject=Re: ${
-                      selectedInquiry.property?.title || "Your Inquiry"
-                    }`}
+                    href={`mailto:${selectedInquiry.email}?subject=Re: ${selectedInquiry.property?.title || "Your Inquiry"
+                      }`}
                     onClick={() => {
                       if (selectedInquiry.status !== "Responded") {
                         updateStatus(selectedInquiry.id, "Responded");

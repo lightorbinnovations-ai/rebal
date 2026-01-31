@@ -26,8 +26,8 @@ const Dashboard = () => {
     completeOnboarding,
     dismissChecklist,
     reopenOnboarding,
-  } = useOnboarding(user?.id);
-  const { showWizard, closeWizard, userId: wizardUserId } = useSubscriptionWizard(user?.id);
+  } = useOnboarding(user?.id, company);
+  const { showWizard, closeWizard, userId: wizardUserId } = useSubscriptionWizard(user?.id, company);
   const navigate = useNavigate();
 
   const toggleTheme = () => {
