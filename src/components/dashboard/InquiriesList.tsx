@@ -383,7 +383,7 @@ export const InquiriesList = ({ company }: InquiriesListProps) => {
 
       {/* Inquiry Detail Modal */}
       <Dialog open={!!selectedInquiry} onOpenChange={() => setSelectedInquiry(null)}>
-        <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
@@ -416,28 +416,30 @@ export const InquiriesList = ({ company }: InquiriesListProps) => {
 
               {/* Contact Info */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>{selectedInquiry.email}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="truncate break-all">{selectedInquiry.email}</span>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="flex-shrink-0"
                     onClick={() => copyToClipboard(selectedInquiry.email, "Email")}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
                 {selectedInquiry.phone && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{selectedInquiry.phone}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate break-all">{selectedInquiry.phone}</span>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="flex-shrink-0"
                       onClick={() => copyToClipboard(selectedInquiry.phone!, "Phone")}
                     >
                       <Copy className="h-4 w-4" />
@@ -451,7 +453,7 @@ export const InquiriesList = ({ company }: InquiriesListProps) => {
               {/* Message */}
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Message</h4>
-                <p className="text-sm bg-muted/50 p-4 rounded-lg whitespace-pre-wrap">
+                <p className="text-sm bg-muted/50 p-3 rounded-lg whitespace-pre-wrap break-words">
                   {selectedInquiry.message}
                 </p>
               </div>

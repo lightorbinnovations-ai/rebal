@@ -58,9 +58,15 @@ export function getDisplayShortLinkUrl(shortCode: string, customDomain?: string 
  * Used when no short link exists
  */
 export function getSocialPreviewUrl(path: string, customDomain?: string | null): string {
-  // Return the branded display URL (e.g. rebal.site/...) to ensure white-labeling.
-  // We avoid exposing the Supabase function URL directly.
-  return getDisplayUrl(path, customDomain);
+  // Use the /s/ proxy to ensure we get Dynamic OG Tags (defined by Edge Function)
+  // instead of the static index.html tags.
+  // Netlify proxies /s/* -> Edge Function -> Redirects to actual page
+  const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+
+  if (customDomain) {
+    return `https://${customDomain}/s/${normalizedPath}`;
+  }
+  return `${BASE_URL}/s/${normalizedPath}`;
 }
 
 /**
