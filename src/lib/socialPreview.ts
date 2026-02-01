@@ -58,15 +58,14 @@ export function getDisplayShortLinkUrl(shortCode: string, customDomain?: string 
  * Used when no short link exists
  */
 export function getSocialPreviewUrl(path: string, customDomain?: string | null): string {
-  // Use the /s/ proxy to ensure we get Dynamic OG Tags (defined by Edge Function)
-  // instead of the static index.html tags.
-  // Netlify proxies /s/* -> Edge Function -> Redirects to actual page
+  // Use the /r/ proxy which points to the working Supabase Edge Function
+  // This ensures we get Dynamic OG Tags for any path
   const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 
   if (customDomain) {
-    return `https://${customDomain}/s/${normalizedPath}`;
+    return `https://${customDomain}/r/${normalizedPath}`;
   }
-  return `${BASE_URL}/s/${normalizedPath}`;
+  return `${BASE_URL}/r/${normalizedPath}`;
 }
 
 /**
