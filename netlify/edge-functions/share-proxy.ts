@@ -55,7 +55,7 @@ export default async (request: Request, context: any) => {
         if (linkData.property_id) {
             const { data: prop, error: propError } = await supabase
                 .from('properties')
-                .select('title, description, price, main_image_url, purpose, currency, company_id')
+                .select('title, description, price, images, purpose, currency, company_id')
                 .eq('id', linkData.property_id)
                 .single()
 
@@ -75,9 +75,11 @@ export default async (request: Request, context: any) => {
                 }).format(prop.price)
 
                 og.title = `${prop.title} | ${companyName}`
-                og.description = `${prop.purpose} for ${priceFormatted}. ${prop.description?.substring(0, 150)}...`
-                if (prop.main_image_url) {
-                    og.image = prop.main_image_url
+                og.description = `${prop.purpose} for ${priceFormatted}. ${prop.description?.substring(0, 150) || ''}...`
+
+                // Extract first image from images array
+                if (prop.images && Array.isArray(prop.images) && prop.images.length > 0) {
+                    og.image = prop.images[0]
                 }
             }
         }
