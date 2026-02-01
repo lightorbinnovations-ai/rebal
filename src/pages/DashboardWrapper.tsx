@@ -8,7 +8,7 @@ import { CompanyOnboarding } from "@/components/dashboard/CompanyOnboarding";
 import { OnboardingModal } from "@/components/dashboard/OnboardingModal";
 import { SubscriptionWizard, useSubscriptionWizard } from "@/components/dashboard/SubscriptionWizard";
 import { DashboardProvider } from "@/contexts/DashboardContext";
-import { DashboardSkeleton } from "@/components/ui/skeletons";
+import { AppLoader } from "@/components/ui/AppLoader";
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(() => {
@@ -37,18 +37,18 @@ const Dashboard = () => {
 
   // Show loading skeleton while auth is being determined
   if (authLoading) {
-    return <DashboardSkeleton />;
+    return <AppLoader />;
   }
 
   // If not authenticated, the useAuth hook will redirect to /auth
   // Show loading while redirect is happening
   if (!user) {
-    return <DashboardSkeleton />;
+    return <AppLoader />;
   }
 
   // Show loading while company is being fetched
   if (companyLoading) {
-    return <DashboardSkeleton />;
+    return <AppLoader />;
   }
 
   // Show onboarding if user has no company
