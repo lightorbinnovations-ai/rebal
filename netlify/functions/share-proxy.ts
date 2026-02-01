@@ -11,7 +11,15 @@ const DEFAULT_OG = {
 const escapeHtml = (str: string) =>
     str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]!)
 
+function isBot(userAgent?: string): boolean {
+    if (!userAgent) return false;
+    const botPattern = /bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|whatsapp|telegram|twitterbot|linkedinbot|pinterest/i;
+    return botPattern.test(userAgent);
+}
+
 export const handler: Handler = async (event) => {
+    // 1. Extract Short Code
+    // Path comes in as /.netlify/functions/share-proxy/CODE
     const path = event.path.replace('/.netlify/functions/share-proxy/', '')
     const shortCode = path.split('/').pop()
 
@@ -36,7 +44,7 @@ export const handler: Handler = async (event) => {
 
         const supabase = createClient(supabaseUrl, supabaseKey)
 
-        // Fetch short link
+        // 2. Fetch Link Data
         const { data: linkData, error: linkError } = await supabase
             .from('short_links')
             .select('property_id, company_id, full_path')
@@ -53,7 +61,7 @@ export const handler: Handler = async (event) => {
         let og = { ...DEFAULT_OG }
         og.url = `https://rebal.site${linkData.full_path}`
 
-        // Property Link
+        // 3. Enhance OG Tags from Property/Company
         if (linkData.property_id) {
             const { data: prop } = await supabase
                 .from('properties')
@@ -85,7 +93,6 @@ export const handler: Handler = async (event) => {
                 }
             }
         }
-        // Company Link
         else if (linkData.company_id) {
             const { data: comp } = await supabase
                 .from('companies')
@@ -104,6 +111,26 @@ export const handler: Handler = async (event) => {
             }
         }
 
+        // 4. Handle Debug Mode
+        const urlObj = new URL(event.rawUrl);
+        if (urlObj.searchParams.get('debug') === 'true') {
+            return {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    shortCode,
+                    linkData,
+                    og,
+                    isBot: isBot(event.headers['user-agent'])
+                }, null, 2)
+            }
+        }
+
+        // 5. Detect Bots vs Humans
+        const userAgent = event.headers['user-agent'] || '';
+        const isBotAgent = isBot(userAgent);
+
+        // 6. Generate HTML
         const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -127,12 +154,20 @@ export const handler: Handler = async (event) => {
         
         <title>${escapeHtml(og.title)}</title>
         
-        <!-- Immediate Redirect for Users -->
+        ${!isBotAgent ? `
+        <!-- Immediate Redirect for Users ONLY -->
         <meta http-equiv="refresh" content="0;url=${escapeHtml(og.url)}">
         <script>window.location.href = "${og.url}"</script>
+        ` : '<!-- Bot detected: No redirect, serving static tags -->'}
       </head>
       <body>
-        <p>Redirecting to <a href="${escapeHtml(og.url)}">${escapeHtml(og.title)}</a>...</p>
+        ${isBotAgent ?
+                `<h1>${escapeHtml(og.title)}</h1>
+             <img src="${escapeHtml(og.image)}" alt="Preview" style="max-width:100%;" />
+             <p>${escapeHtml(og.description)}</p>`
+                :
+                `<p>Redirecting to <a href="${escapeHtml(og.url)}">${escapeHtml(og.title)}</a>...</p>`
+            }
       </body>
       </html>
     `
@@ -141,7 +176,8 @@ export const handler: Handler = async (event) => {
             statusCode: 200,
             headers: {
                 'Content-Type': 'text/html; charset=UTF-8',
-                'Cache-Control': 'public, max-age=60, s-maxage=60'
+                'Cache-Control': 'public, max-age=60, s-maxage=60',
+                'Vary': 'User-Agent'
             },
             body: html
         }
