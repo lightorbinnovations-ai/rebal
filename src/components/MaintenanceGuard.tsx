@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, Hammer } from "lucide-react";
+import { AppLoader } from "@/components/ui/AppLoader";
 
 export const MaintenanceGuard = () => {
     const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
@@ -35,7 +36,7 @@ export const MaintenanceGuard = () => {
     }, []);
 
     if (isLoading) {
-        return null; // or a loading spinner
+        return <AppLoader />;
     }
 
     if (isMaintenanceMode && !isAdminRoute && !isAuthRoute) {

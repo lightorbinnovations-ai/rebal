@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Ban, LifeBuoy, LogOut } from "lucide-react";
+import { AppLoader } from "@/components/ui/AppLoader";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,7 +44,7 @@ export const SuspendedGuard = () => {
         window.location.href = "/auth";
     };
 
-    if (isLoading) return null; // Or a loader
+    if (isLoading) return <AppLoader />;
 
     if (isSuspended) {
         return (
