@@ -35,17 +35,26 @@ export default async (request: Request, context: any) => {
 
         // 1. Fetch the short link definition
         // We need to know if it maps to a property or a company
+        console.log('[Edge Function] Looking up short code:', shortCode)
+
         const { data: linkData, error: linkError } = await supabase
             .from('short_links')
             .select('property_id, company_id, full_path')
             .eq('short_code', shortCode)
-            .single()
+            .maybeSingle()
 
-        if (linkError || !linkData) {
-            console.log('Link not found:', shortCode)
+        if (linkError) {
+            console.error('[Edge Function] Database error:', linkError)
+            return context.next()
+        }
+
+        if (!linkData) {
+            console.log('[Edge Function] Link not found:', shortCode)
             // If link not found in DB, just let the SPA handle 404
             return context.next()
         }
+
+        console.log('[Edge Function] Link data:', linkData)
 
         // 2. Determine OG Data based on link type
         let og = { ...DEFAULT_OG }
@@ -55,9 +64,9 @@ export default async (request: Request, context: any) => {
         if (linkData.property_id) {
             const { data: prop, error: propError } = await supabase
                 .from('properties')
-                .select('title, description, price, images, purpose, currency, company_id')
+                .select('title, description, price, main_image_url, gallery_urls, purpose, currency, company_id')
                 .eq('id', linkData.property_id)
-                .single()
+                .maybeSingle()
 
             if (prop && !propError) {
                 // Fetch company name for branding
@@ -65,7 +74,7 @@ export default async (request: Request, context: any) => {
                     .from('companies')
                     .select('name')
                     .eq('id', prop.company_id)
-                    .single()
+                    .maybeSingle()
 
                 const companyName = comp?.name || 'Rebal'
                 const priceFormatted = new Intl.NumberFormat('en-NG', {
@@ -77,9 +86,11 @@ export default async (request: Request, context: any) => {
                 og.title = `${prop.title} | ${companyName}`
                 og.description = `${prop.purpose} for ${priceFormatted}. ${prop.description?.substring(0, 150) || ''}...`
 
-                // Extract first image from images array
-                if (prop.images && Array.isArray(prop.images) && prop.images.length > 0) {
-                    og.image = prop.images[0]
+                // Use main_image_url first, then fallback to first gallery image
+                if (prop.main_image_url) {
+                    og.image = prop.main_image_url
+                } else if (prop.gallery_urls && Array.isArray(prop.gallery_urls) && prop.gallery_urls.length > 0) {
+                    og.image = prop.gallery_urls[0]
                 }
             }
         }
