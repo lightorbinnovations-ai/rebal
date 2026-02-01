@@ -9,6 +9,10 @@
   [build.environment]
     NODE_VERSION = "18"
 
+[functions]
+  directory = "netlify/functions"
+
+
 # Share Link Proxy (Dynamic Previews for direct paths)
 # Using Netlify Functions instead of Edge Functions
 [[redirects]]
