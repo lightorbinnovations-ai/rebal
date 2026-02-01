@@ -15,16 +15,18 @@
 
 # Share Link Proxy (Dynamic Previews for direct paths)
 # Using Netlify Functions instead of Edge Functions
+# Short Link Proxy for Social Preview
+# Route BOTH /r/ and /s/ to our Netlify Serverless Function
+# This bypasses Supabase 401 errors and ensures we handle OG tags with our keys
 [[redirects]]
-  from = "/s/*"
+  from = "/r/*"
   to = "/.netlify/functions/share-proxy/:splat"
   status = 200
   force = true
 
-# Short Link Proxy for Social Preview
 [[redirects]]
-  from = "/r/*"
-  to = "https://ywnisvgweuirqhocllga.supabase.co/functions/v1/social-preview?path=/r/:splat"
+  from = "/s/*"
+  to = "/.netlify/functions/share-proxy/:splat"
   status = 200
   force = true
 
