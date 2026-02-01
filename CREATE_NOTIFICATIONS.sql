@@ -50,7 +50,7 @@ BEGIN
     -- A. New User / Company
     IF v_type = 'new_user' THEN
         v_ref_id := NEW.id;
-        v_message := 'New Company Registered: ' || NEW.company_name;
+        v_message := 'New Company Registered: ' || COALESCE(NEW.name, 'Unknown');
     
     -- B. New Property
     ELSIF v_type = 'new_property' THEN

@@ -10,12 +10,10 @@
     NODE_VERSION = "18"
 
 # Share Link Proxy (Dynamic Previews for direct paths)
-# e.g. rebal.site/s/propestate -> social-preview -> rebal.site/propestate
-[[redirects]]
-  from = "/s/*"
-  to = "https://ywnisvgweuirqhocllga.supabase.co/functions/v1/social-preview?path=/:splat"
-  status = 200
-  force = true
+# e.g. rebal.site/s/propestate -> Edge Function -> rebal.site/propestate
+[[edge_functions]]
+  path = "/s/*"
+  function = "share-proxy"
 
 # Short Link Proxy for Social Preview
 [[redirects]]

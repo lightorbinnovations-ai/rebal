@@ -131,6 +131,12 @@ export interface Inquiry {
   message: string;
   status: InquiryStatus;
   created_at: string;
+  // Analytics
+  lead_score?: string;
+  page_views?: number;
+  properties_viewed?: number;
+  time_spent_seconds?: number;
+  last_activity_at?: string;
 }
 
 export type ReferralStatus = 'pending' | 'completed' | 'paid';

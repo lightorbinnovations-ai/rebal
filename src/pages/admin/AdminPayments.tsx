@@ -20,11 +20,14 @@ import { CreditCard, Download, TrendingUp, AlertCircle, Users, Loader2, Rocket, 
 import { format } from "date-fns";
 import { TableSkeleton, StatCardsGridSkeleton } from "@/components/ui/skeletons";
 
-interface Payment {
+import { Payment, Subscription, PaymentStatus } from "@/types/finance";
+
+// Extended interface for the View which includes joined column aliases
+interface AdminPaymentViewItem {
   id: string;
-  reference: string;
+  reference: string; // Alias for paystack_reference in view? Or just reference?
   amount: number;
-  status: "pending" | "success" | "failed" | "abandoned";
+  status: PaymentStatus;
   payment_method: string | null;
   created_at: string;
   metadata: Record<string, any>;
@@ -32,19 +35,13 @@ interface Payment {
   type: "subscription" | "boost" | "domain";
 }
 
-interface Subscription {
-  id: string;
-  status: string;
-  plan_id: string;
-  billing_interval: string;
-  company: {
-    name: string;
-  } | null;
-}
+// Ensure the state uses the correct type
+// Note: The view returns a flattened structure distinct from the raw table
+
 
 export default function AdminPayments() {
   const { signOut, isLoading: authLoading } = useAdminAuth();
-  const [payments, setPayments] = useState<Payment[]>([]);
+  const [payments, setPayments] = useState<AdminPaymentViewItem[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [stats, setStats] = useState({
     totalRevenue: 0,
@@ -128,7 +125,8 @@ export default function AdminPayments() {
         .range(from, to);
 
       if (error) throw error;
-      setPayments(data as Payment[] || []);
+      if (error) throw error;
+      setPayments(data as unknown as AdminPaymentViewItem[] || []);
     } catch (error) {
       console.error("Error fetching payments:", error);
     } finally {
@@ -164,7 +162,9 @@ export default function AdminPayments() {
         .range(from, to);
 
       if (error) throw error;
-      setSubscriptions(data as Subscription[] || []);
+      if (error) throw error;
+      // We need to match the Shape with company join
+      setSubscriptions(data as unknown as Subscription[] || []);
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
     } finally {

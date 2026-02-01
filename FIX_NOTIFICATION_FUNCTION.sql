@@ -14,7 +14,7 @@ BEGIN
     
     -- A. New User / Company
     IF v_type = 'new_user' THEN
-        v_subject := 'New Company Registered: ' || COALESCE(NEW.company_name, 'Unknown');
+        v_subject := 'New Company Registered: ' || COALESCE(NEW.name, 'Unknown');
         v_metadata := jsonb_build_object('company_id', NEW.id);
     
     -- B. New Property
