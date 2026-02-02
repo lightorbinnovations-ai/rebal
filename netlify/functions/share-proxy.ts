@@ -107,13 +107,8 @@ export const handler: Handler = async (event) => {
                 og.title = `${comp.name} - ${comp.tagline || 'Real Estate Profile'}`
                 og.description = comp.description?.substring(0, 160) || DEFAULT_OG.description
 
-                // DYNAMIC OG IMAGE (Satori)
-                const projectRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1]
-                if (projectRef) {
-                    og.image = `https://${projectRef}.supabase.co/functions/v1/og-renderer?id=${linkData.company_id}&type=company&v=${comp.og_version || 1}`
-                } else if (comp.logo_url) {
-                    og.image = comp.logo_url
-                }
+                // Use actual company images (reliable and fast)
+                og.image = comp.profile_picture_url || comp.logo_url || 'https://rebal.site/og-image.png'
             }
         }
 
