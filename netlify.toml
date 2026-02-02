@@ -13,24 +13,21 @@
   directory = "netlify/functions"
 
 
-# Share Link Proxy (Dynamic Previews for direct paths)
-# Using Netlify Functions instead of Edge Functions
-# Short Link Proxy for Social Preview
-# Route BOTH /r/ and /s/ to our Netlify Serverless Function
-# This bypasses Supabase 401 errors and ensures we handle OG tags with our keys
-[[redirects]]
-  from = "/r/*"
-  to = "/.netlify/functions/share-proxy/:splat"
-  status = 200
-  force = true
+# Share Link Proxy (Edge Function for Bot Awareness)
+# This intercepts requests to /r/* and /s/* 
+# Bots get raw HTML with OG tags (from og-handler.ts)
+# Humans get passed through to the SPA (index.html)
 
-[[redirects]]
-  from = "/s/*"
-  to = "/.netlify/functions/share-proxy/:splat"
-  status = 200
-  force = true
+[[edge_functions]]
+  path = "/r/*"
+  function = "og-handler"
+
+[[edge_functions]]
+  path = "/s/*"
+  function = "og-handler"
 
 # SPA redirects - all routes go to index.html
+# Note: Edge Functions run BEFORE these redirects.
 [[redirects]]
   from = "/*"
   to = "/index.html"
