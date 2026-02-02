@@ -62,10 +62,11 @@ export const handler: Handler = async (event) => {
         og.url = `https://rebal.site${linkData.full_path}`
 
         // 3. Enhance OG Tags from Property/Company
+        // 3. Enhance OG Tags from Property/Company
         if (linkData.property_id) {
             const { data: prop } = await supabase
                 .from('properties')
-                .select('title, description, price, main_image_url, gallery_urls, purpose, currency, company_id')
+                .select('title, description, price, main_image_url, gallery_urls, purpose, currency, company_id, og_version')
                 .eq('id', linkData.property_id)
                 .maybeSingle()
 
@@ -86,27 +87,34 @@ export const handler: Handler = async (event) => {
                 og.title = `${prop.title} | ${companyName}`
                 og.description = `${prop.purpose} for ${priceFormatted}. ${prop.description?.substring(0, 150) || ''}...`
 
-                if (prop.main_image_url) {
+                // DYNAMIC OG IMAGE (Satori)
+                // We use the Supabase Edge Function to generate the image on the fly
+                // v=og_version ensures instant updates
+                const projectRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1]
+                if (projectRef) {
+                    og.image = `https://${projectRef}.supabase.co/functions/v1/og-renderer?id=${linkData.property_id}&type=property&v=${prop.og_version || 1}`
+                } else if (prop.main_image_url) {
                     og.image = prop.main_image_url
-                } else if (prop.gallery_urls && Array.isArray(prop.gallery_urls) && prop.gallery_urls.length > 0) {
-                    og.image = prop.gallery_urls[0]
                 }
             }
         }
         else if (linkData.company_id) {
             const { data: comp } = await supabase
                 .from('companies')
-                .select('name, description, logo_url, profile_picture_url, tagline')
+                .select('name, description, logo_url, profile_picture_url, tagline, og_version')
                 .eq('id', linkData.company_id)
                 .maybeSingle()
 
             if (comp) {
                 og.title = `${comp.name} - ${comp.tagline || 'Real Estate Profile'}`
                 og.description = comp.description?.substring(0, 160) || DEFAULT_OG.description
-                if (comp.logo_url) {
+
+                // DYNAMIC OG IMAGE (Satori)
+                const projectRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1]
+                if (projectRef) {
+                    og.image = `https://${projectRef}.supabase.co/functions/v1/og-renderer?id=${linkData.company_id}&type=company&v=${comp.og_version || 1}`
+                } else if (comp.logo_url) {
                     og.image = comp.logo_url
-                } else if (comp.profile_picture_url) {
-                    og.image = comp.profile_picture_url
                 }
             }
         }
