@@ -92,15 +92,8 @@ export const handler: Handler = async (event) => {
                 og.title = `${prop.title} | ${companyName}`
                 og.description = `${prop.purpose} for ${priceFormatted}. ${prop.description?.substring(0, 150) || ''}...`
 
-                // DYNAMIC OG IMAGE (Satori)
-                // We use the Supabase Edge Function to generate the image on the fly
-                // v=og_version ensures instant updates
-                const projectRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1]
-                if (projectRef) {
-                    og.image = `https://${projectRef}.supabase.co/functions/v1/og-renderer?id=${linkData.property_id}&type=property&v=${prop.og_version || 1}`
-                } else if (prop.main_image_url) {
-                    og.image = prop.main_image_url
-                }
+                // Use the actual property image directly (reliable and fast)
+                og.image = prop.main_image_url || 'https://rebal.site/og-image.png'
             }
         }
         else if (linkData.company_id) {
