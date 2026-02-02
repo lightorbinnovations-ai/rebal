@@ -59,9 +59,14 @@ export const handler: Handler = async (event) => {
         }
 
         let og = { ...DEFAULT_OG }
-        og.url = `https://rebal.site${linkData.full_path}`
 
-        // 3. Enhance OG Tags from Property/Company
+        // CRITICAL FOR FACEBOOK: 
+        // The Canonical URL (og:url) MUST be the Short Link itself.
+        // If we set it to the destination (SPA), Facebook will follow it and see default tags.
+        // We only redirect HUMANS to the targetUrl.
+        const targetUrl = `https://rebal.site${linkData.full_path}`
+        og.url = `https://rebal.site/r/${shortCode}`
+
         // 3. Enhance OG Tags from Property/Company
         if (linkData.property_id) {
             const { data: prop } = await supabase
@@ -129,6 +134,7 @@ export const handler: Handler = async (event) => {
                     shortCode,
                     linkData,
                     og,
+                    targetUrl,
                     isBot: isBot(event.headers['user-agent'])
                 }, null, 2)
             }
@@ -164,8 +170,8 @@ export const handler: Handler = async (event) => {
         
         ${!isBotAgent ? `
         <!-- Immediate Redirect for Users ONLY -->
-        <meta http-equiv="refresh" content="0;url=${escapeHtml(og.url)}">
-        <script>window.location.href = "${og.url}"</script>
+        <meta http-equiv="refresh" content="0;url=${escapeHtml(targetUrl)}">
+        <script>window.location.href = "${targetUrl}"</script>
         ` : '<!-- Bot detected: No redirect, serving static tags -->'}
       </head>
       <body>
@@ -174,7 +180,7 @@ export const handler: Handler = async (event) => {
              <img src="${escapeHtml(og.image)}" alt="Preview" style="max-width:100%;" />
              <p>${escapeHtml(og.description)}</p>`
                 :
-                `<p>Redirecting to <a href="${escapeHtml(og.url)}">${escapeHtml(og.title)}</a>...</p>`
+                `<p>Redirecting to <a href="${escapeHtml(targetUrl)}">${escapeHtml(og.title)}</a>...</p>`
             }
       </body>
       </html>
