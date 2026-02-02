@@ -71,7 +71,7 @@ export const handler: Handler = async (event) => {
         if (linkData.property_id) {
             const { data: prop } = await supabase
                 .from('properties')
-                .select('title, description, price, main_image_url, gallery_urls, purpose, currency, company_id, og_version')
+                .select('title, description, price, main_image_url, gallery_urls, purpose, company_id, og_version')
                 .eq('id', linkData.property_id)
                 .maybeSingle()
 
@@ -85,7 +85,7 @@ export const handler: Handler = async (event) => {
                 const companyName = comp?.name || 'Rebal'
                 const priceFormatted = new Intl.NumberFormat('en-NG', {
                     style: 'currency',
-                    currency: prop.currency || 'NGN',
+                    currency: 'NGN',
                     maximumFractionDigits: 0
                 }).format(prop.price)
 
