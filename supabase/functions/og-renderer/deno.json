@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "jsxImportSource": "react"
+    },
+    "imports": {
+        "react": "https://esm.sh/react@18.2.0?deno-std=0.140.0",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime?deno-std=0.140.0"
+    }
+}

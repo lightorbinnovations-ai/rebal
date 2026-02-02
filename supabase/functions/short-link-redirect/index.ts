@@ -237,14 +237,22 @@ Deno.serve(async (req) => {
         const siteName = company?.name || "REBAL";
         const priceFormatted = formatPrice(property.price);
         const location = [property.city, property.state].filter(Boolean).join(", ") || property.location;
-        // Priority: og_image_url > main_image_url > company images > default
-        const image = property.og_image_url || property.main_image_url || company?.hero_image_url || company?.logo_url || getRandomDefaultHero(property.slug);
+        // Priority: Dynamic Satori Image > og_image_url > main_image_url > company images > default
+        let image = property.og_image_url || property.main_image_url || company?.hero_image_url || company?.logo_url || getRandomDefaultHero(property.slug);
+
+        // DYNAMIC OG IMAGE (Satori) - The "Anti-Gravity" Upgrade
+        // We use the og-renderer to generate the image on the fly with the EXACT price/title
+        const projectRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1];
+        if (projectRef) {
+          // v=og_version ensures instant updates when you change price/title
+          image = `https://${projectRef}.supabase.co/functions/v1/og-renderer?id=${shortLink.property_id}&type=property&v=${property.og_version || 1}`;
+        }
 
         ogData = {
           title: property.og_title || `${property.title} - ${priceFormatted} | ${siteName}`,
           description: (property.og_description || property.meta_description || property.description || `${property.property_type} for ${property.purpose} in ${location}`).substring(0, 160),
           image,
-          url: targetUrl,
+          url: `https://rebal.site/r/${shortCode}`, // Canonical URL is the short link to prevent FB re-scrape
           type: "product",
           siteName,
           price: String(property.price),
