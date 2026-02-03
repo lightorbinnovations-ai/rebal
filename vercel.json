@@ -2,6 +2,10 @@
     "cleanUrls": true,
     "rewrites": [
         {
+            "source": "/api/og",
+            "destination": "/api/og"
+        },
+        {
             "source": "/s/:slug",
             "destination": "/api/share"
         },
