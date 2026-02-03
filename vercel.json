@@ -2,8 +2,8 @@
     "cleanUrls": true,
     "rewrites": [
         {
-            "source": "/api/og",
-            "destination": "/api/og"
+            "source": "/api/(.*)",
+            "destination": "/api/$1"
         },
         {
             "source": "/s/:slug",
@@ -14,7 +14,7 @@
             "destination": "/api/share"
         },
         {
-            "source": "/((?!api/|s/|r/).*)",
+            "source": "/(.*)",
             "destination": "/index.html"
         }
     ]
