@@ -2,19 +2,15 @@
     "cleanUrls": true,
     "rewrites": [
         {
-            "source": "/api/og",
-            "destination": "/api/og.tsx"
-        },
-        {
             "source": "/s/:slug",
-            "destination": "/api/share.ts"
+            "destination": "/api/share"
         },
         {
             "source": "/r/:code",
-            "destination": "/api/share.ts"
+            "destination": "/api/share"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!api/|s/|r/).*)",
             "destination": "/index.html"
         }
     ]
