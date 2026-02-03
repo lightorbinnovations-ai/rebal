@@ -75,7 +75,7 @@ export default async function handler(request: Request) {
     // 2. Fetch Details for Meta Tags
     let ogTitle = 'Rebal';
     let ogDesc = 'Real Estate Business & Listings';
-    let ogImage = 'https://rebal.site/og-image.png'; // Fallback
+    let ogImage = `${origin}/og-image.png`; // Fallback
 
     try {
         if (propertyId) {
@@ -100,7 +100,7 @@ export default async function handler(request: Request) {
                 ogTitle = `${p.title} | ${cName}`;
                 ogDesc = `${p.purpose} for ${price}. ${p.description ? p.description.substring(0, 150) : ''}...`;
                 // POINT TO NEW VERCEL OG ENDPOINT
-                ogImage = `https://rebal.site/api/og?type=property&id=${propertyId}&v=${p.og_version || 1}`;
+                ogImage = `${origin}/api/og?type=property&id=${propertyId}&v=${p.og_version || 1}`;
             }
         } else if (companyId) {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${companyId}&select=name,description,og_version`, {
@@ -111,7 +111,7 @@ export default async function handler(request: Request) {
                 const c = comps[0];
                 ogTitle = c.name;
                 ogDesc = c.description || 'Real Estate Professional';
-                ogImage = `https://rebal.site/api/og?type=company&id=${companyId}&v=${c.og_version || 1}`;
+                ogImage = `${origin}/api/og?type=company&id=${companyId}&v=${c.og_version || 1}`;
             }
         }
     } catch (e) {
@@ -133,7 +133,7 @@ export default async function handler(request: Request) {
     <meta property="og:image" content="${escapeHtml(ogImage)}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:url" content="https://rebal.site${path}" />
+    <meta property="og:url" content="${origin}${path}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(ogTitle)}" />
@@ -141,10 +141,10 @@ export default async function handler(request: Request) {
     <meta name="twitter:image" content="${escapeHtml(ogImage)}" />
     
     <!-- Redirect to SPA for humans -->
-    <meta http-equiv="refresh" content="0;url=https://rebal.site${targetPath}">
+    <meta http-equiv="refresh" content="0;url=${origin}${targetPath}">
     
     <script>
-       window.location.href = "https://rebal.site${targetPath}";
+       window.location.href = "${origin}${targetPath}";
     </script>
 </head>
 <body>
