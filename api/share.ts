@@ -4,6 +4,7 @@ export const config = {
 };
 
 // Simple HTML escaping
+// Manual Deployment Trigger
 const escapeHtml = (str: string) => str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]!);
 
 export default async function handler(request: Request) {

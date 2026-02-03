@@ -7,6 +7,7 @@ export const config = {
 
 // Vercel OG Font config can be added here if needed
 // For now using system sans-serif which is robust
+// For now using system sans-serif which is robust
 
 export default async function handler(request: Request) {
     const { searchParams } = new URL(request.url);
