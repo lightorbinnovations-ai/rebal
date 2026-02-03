@@ -155,9 +155,7 @@ Deno.serve(async (req) => {
                                 lineHeight: 1.1,
                                 marginBottom: '10px',
                                 textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                                display: '-webkit-box',
                                 overflow: 'hidden',
-                                textOverflow: 'ellipsis',
                             }}
                         >
                             {title}
