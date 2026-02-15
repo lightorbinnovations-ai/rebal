@@ -1,12 +1,14 @@
 import { ImageResponse } from '@vercel/og';
 
 export const config = {
-    runtime: 'edge',
+    runtime: 'nodejs', // Switched to Node.js to test if Edge is the issue
 };
 
-export default async function handler() {
+export default async function handler(request: Request) {
+    console.log('Test OG: Handler started');
     try {
-        return new ImageResponse(
+        console.log('Test OG: Generatng response...');
+        const response = new ImageResponse(
             (
                 <div
                     style={{
@@ -21,7 +23,7 @@ export default async function handler() {
                         fontWeight: 'bold',
                     }}
                 >
-                    Test Image
+                    Test Image (Node.js)
                 </div>
             ),
             {
@@ -29,13 +31,27 @@ export default async function handler() {
                 height: 630,
             },
         );
+        console.log('Test OG: Response generated successfully');
+        return response;
     } catch (error) {
+        console.error('Test OG: Error generating image:', error);
         return new Response(JSON.stringify({
             error: 'Failed to generate image',
-            message: error instanceof Error ? error.message : String(error)
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined
         }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
     }
+}
+    } catch (error) {
+    return new Response(JSON.stringify({
+        error: 'Failed to generate image',
+        message: error instanceof Error ? error.message : String(error)
+    }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
 }
