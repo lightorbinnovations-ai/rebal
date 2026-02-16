@@ -1,11 +1,12 @@
-import { ImageResponse } from '@vercel/og';
-
 export const config = {
     runtime: 'edge', // Back to edge to test basic connectivity
 };
 
-status: 500,
-    headers: { 'Content-Type': 'application/json' }
+export default function handler(request: Request) {
+    return new Response('Hello from Vercel Edge Function!', {
+        status: 200,
+        headers: {
+            'content-type': 'text/plain',
+        },
     });
-}
 }
