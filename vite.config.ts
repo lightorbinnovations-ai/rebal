@@ -111,6 +111,11 @@ export default defineConfig(({ mode }) => ({
       },
     }),
   ].filter(Boolean),
+  build: {
+    rollupOptions: {
+      external: [/^\/api\//], // Exclude API functions from Vite build
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
