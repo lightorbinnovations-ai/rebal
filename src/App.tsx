@@ -100,65 +100,61 @@ const App = () => (
                     <Route path="/properties/:propertySlug" element={<PropertyRedirect />} />
                     <Route path="/r/:shortCode" element={<ShortLinkRedirect />} />
 
-
-
                     <Route element={<SuspendedGuard />}>
-                      {/* Dashboard (User Side) - User might want this blocked or allowed? Usually blocked if whole site down */}
+                      {/* Dashboard (User Side) */}
                       <Route path="/dashboard" element={<Dashboard />}>
                         <Route index element={<DashboardOverviewPage />} />
                         <Route path="properties" element={<DashboardPropertiesPage />} />
                         <Route path="properties/new" element={<DashboardPropertyFormPage />} />
-                        <Route path="properties/:propertyId/edit" element={<DashboardPropertyFormPage />} />
-                        <Route path="links" element={<DashboardLinksPage />} />
+                        <Route path="properties/:id/edit" element={<DashboardPropertyFormPage />} />
                         <Route path="inquiries" element={<DashboardInquiriesPage />} />
                         <Route path="analytics" element={<DashboardAnalyticsPage />} />
                         <Route path="referrals" element={<DashboardReferralsPage />} />
-                        <Route path="saved-searches" element={<DashboardSavedSearchesPage />} />
                         <Route path="branding" element={<DashboardBrandingPage />} />
-                        <Route path="domain" element={<DashboardDomainPage />} />
                         <Route path="settings" element={<DashboardSettingsPage />} />
                         <Route path="help" element={<DashboardHelpPage />} />
+                        <Route path="links" element={<DashboardLinksPage />} />
+                        <Route path="saved-searches" element={<DashboardSavedSearchesPage />} />
+                        <Route path="domain" element={<DashboardDomainPage />} />
                       </Route>
-
-                      {/* Public company routes - Allow access even if suspended? Probably block EDITING but allow public view? 
-                      User requested blocking "page" so likely dashboard access. Public routes should probably remain visible unless hard block.
-                      For now, blocking dashboard access is the key 'access to the page' user requested. 
-                  */}
                     </Route>
 
-                    {/* Public company routes */}
-                    <Route path="/:companySlug" element={<CompanyRouteLayout />}>
+                    {/* Auth */}
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+
+                    {/* Company Routes */}
+                    <Route path="/c/:companySlug" element={<CompanyRouteLayout />}>
                       <Route index element={<CompanyPage />} />
                       <Route path="properties" element={<CompanyPropertiesPage />} />
-                      <Route path="services" element={<CompanyServicesPage />} />
                       <Route path="about" element={<CompanyAboutPage />} />
                       <Route path="contact" element={<CompanyContactPage />} />
-                      <Route path="property/:propertySlug" element={<PropertyDetailsPage />} />
+                      <Route path="services" element={<CompanyServicesPage />} />
+                      <Route path=":propertySlug" element={<PropertyDetailsPage />} />
                     </Route>
                   </Route>
 
-                  {/* Auth Routes - Always accessible */}
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/auth/reset-password" element={<ResetPassword />} />
-
-                  {/* Admin Routes - Always accessible (guarded by AdminLogin internals) */}
+                  {/* Admin Routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="/admin/debug" element={<AdminDebug />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/users" element={<AdminUsers />} />
-                  <Route path="/admin/companies" element={<AdminCompanies />} />
-                  <Route path="/admin/properties" element={<AdminProperties />} />
-                  <Route path="/admin/domains" element={<AdminDomains />} />
-                  <Route path="/admin/payments" element={<AdminPayments />} />
-                  <Route path="/admin/referrals" element={<AdminReferrals />} />
-                  <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
-                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                  <Route path="/admin/content" element={<AdminContent />} />
-                  <Route path="/admin/notifications" element={<AdminNotifications />} />
-                  <Route path="/admin/settings" element={<AdminSettings />} />
-                  <Route path="/admin/support" element={<AdminSupport />} />
-                  <Route path="/admin/verifications" element={<AdminVerifications />} />
+                  <Route path="/admin" element={<AdminDashboard />}>
+                    <Route index element={<AdminUsers />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="companies" element={<AdminCompanies />} />
+                    <Route path="properties" element={<AdminProperties />} />
+                    <Route path="domains" element={<AdminDomains />} />
+                    <Route path="payments" element={<AdminPayments />} />
+                    <Route path="referrals" element={<AdminReferrals />} />
+                    <Route path="withdrawals" element={<AdminWithdrawals />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="content" element={<AdminContent />} />
+                    <Route path="notifications" element={<AdminNotifications />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                    <Route path="support" element={<AdminSupport />} />
+                    <Route path="verifications" element={<AdminVerifications />} />
+                    <Route path="debug" element={<AdminDebug />} />
+                  </Route>
 
+                  {/* 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </CustomDomainWrapper>
