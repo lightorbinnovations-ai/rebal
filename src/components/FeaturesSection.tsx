@@ -100,16 +100,16 @@ export const FeaturesSection = () => {
                 
                 {/* Icon */}
                 <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} p-[1px] mb-5`}>
-                  <div className="w-full h-full rounded-2xl bg-card flex items-center justify-center group-hover:bg-transparent transition-colors duration-300">
-                    <feature.icon className="w-6 h-6 text-foreground group-hover:text-white transition-colors duration-300" />
+                  <div className="w-full h-full rounded-2xl bg-card flex items-center justify-center">
+                    <feature.icon className="w-6 h-6 text-foreground" />
                   </div>
                 </div>
 
                 {/* Content */}
-                <h3 className="relative text-lg font-bold font-heading text-foreground mb-2 group-hover:text-foreground">
+                <h3 className="font-bold text-foreground mb-2 text-lg leading-tight">
                   {feature.title}
                 </h3>
-                <p className="relative text-sm text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </div>
