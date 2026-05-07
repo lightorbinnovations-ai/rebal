@@ -117,23 +117,24 @@ export class ErrorBoundary extends Component<Props, State> {
                   </button>
                   
                   {this.state.showDetails && (
-                    <div className="mt-3 p-3 bg-muted rounded-lg overflow-auto max-h-48">
-                      <p className="text-xs font-mono text-destructive mb-2">
+                    <div className="mt-3 p-3 bg-muted rounded-lg text-xs font-mono text-muted-foreground overflow-auto max-h-48">
+                      <p className="font-semibold text-destructive mb-2">
                         {this.state.error.name}: {this.state.error.message}
                       </p>
                       {this.state.error.stack && (
-                        <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
-                          {this.state.error.stack.split("\n").slice(0, 5).join("\n")}
+                        <pre className="whitespace-pre-wrap break-words">
+                          {this.state.error.stack}
+                        </pre>
+                      )}
+                      {this.state.errorInfo && (
+                        <pre className="whitespace-pre-wrap break-words mt-2">
+                          {this.state.errorInfo.componentStack}
                         </pre>
                       )}
                     </div>
                   )}
                 </div>
               )}
-
-              <p className="text-center text-xs text-muted-foreground">
-                If this problem persists, please contact support.
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -143,21 +144,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-/**
- * Higher-order component to wrap any component with an error boundary
- */
-export function withErrorBoundary<P extends object>(
-  WrappedComponent: React.ComponentType<P>,
-  fallback?: ReactNode
-) {
-  return function WithErrorBoundary(props: P) {
-    return (
-      <ErrorBoundary fallback={fallback}>
-        <WrappedComponent {...props} />
-      </ErrorBoundary>
-    );
-  };
-}
-
-export default ErrorBoundary;
