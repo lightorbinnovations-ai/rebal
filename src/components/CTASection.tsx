@@ -84,9 +84,6 @@ export const CTASection = () => {
           </div>
         </ScrollReveal>
       </div>
-
-      {/* Top Gradient Fade */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent" />
     </section>
   );
 };
